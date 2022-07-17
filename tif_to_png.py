@@ -26,5 +26,5 @@ if __name__ == "__main__":
     #args = parser.parse_args()
     #main(args.src, args.dist)
     source = "C:\\Users\\hp\\Desktop\\TESI TRIENNALE\\immagini1gy24hNOBPA"
-    destination = "C:\\Users\\hp\\Desktop\\TESI TRIENNALE\\immagini1gy24hNOBPA"
+    destination = "C:\\Users\\hp\\Desktop\\TESI TRIENNALE\\immagini_convertite"
     main(source, destination)
