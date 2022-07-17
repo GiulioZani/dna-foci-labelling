@@ -23,6 +23,6 @@ if __name__ == "__main__":
     #parser.add_argument("dist", help="destination directory")
     #args = parser.parse_args()
     #main(args.src, args.dist)
-    source = ""
-    destination = ""
+    source = "C:\\Users\\hp\\Desktop\\TESI TRIENNALE\\immagini1gy24hNOBPA"
+    destination = "C:\\Users\\hp\\Desktop\\TESI TRIENNALE\\immagini1gy24hNOBPA"
     main(source, destination)
