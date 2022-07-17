@@ -8,7 +8,7 @@ const port = 3000;
 let imgPath = "";
 let outLabelPath = "";
 const config = JSON.parse(
-  fs.readFileSync(path.join("..", "config.json"), "utf8")
+  fs.readFileSync(path.join("..", "new_config.json"), "utf8")
 );
 console.log(config);
 const inPath = config.in_path;
@@ -71,11 +71,12 @@ const server = https.createServer((req, res) => {
       const labels = JSON.parse(toSave);
 
       console.log(`Saving labels to ${outLabelPath}`);
-
-      fs.writeFileSync(outLabelPath, JSON.stringify(labels));
-      res.writeHead(200, {
-        "Access-Control-Allow-Origin": "*",
-      });
+      if (labels.length > 0) {
+        fs.writeFileSync(outLabelPath, JSON.stringify(labels));
+        res.writeHead(200, {
+          "Access-Control-Allow-Origin": "*",
+        });
+      }
     }
     res.end("saved successfully");
   }
