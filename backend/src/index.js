@@ -7,7 +7,9 @@ const port = 3000;
 
 let imgPath = "";
 let outLabelPath = "";
-const config = JSON.parse(fs.readFileSync("../config.json", "utf8"));
+const config = JSON.parse(
+  fs.readFileSync(path.join("..", "config.json", "utf8"))
+);
 console.log(config);
 const inPath = config.in_path;
 const outPath = config.out_path;
