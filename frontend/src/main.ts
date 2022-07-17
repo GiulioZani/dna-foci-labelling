@@ -6,6 +6,7 @@ type Focus = {
 };
 let loading = false;
 let foci: Focus[] = [];
+let lastFociString = "";
 const canvas = document.getElementById("canvas")! as HTMLCanvasElement;
 canvas.width = window.innerHeight - 10;
 canvas.height = window.innerHeight - 10;
@@ -28,7 +29,7 @@ const drawFoci = () => {
 };
 image.onload = async () => {
   drawFoci();
-	loading = false;
+  loading = false;
 };
 const drawBall = (x: number, y: number, r = 10) => {
   ctx.beginPath();
@@ -38,33 +39,34 @@ const drawBall = (x: number, y: number, r = 10) => {
 };
 
 const setImage = async () => {
-	loading = true;
+  loading = true;
   const imageData = await fetch(
     `http://127.0.0.1:3000/$getImg$${images[imageIndex]}`
   );
-	
-	foci = []
-	foci = (
-    await fetch(`http://localhost:3000/$getLabel$`).then(
-      (response) => response.json() as unknown as [number, number, number][]
-    )
-  ).map(([x, y, r]) => ({
-    x: (x * canvas.height) / image.width,
-    y: (y * canvas.height) / image.width,
+
+  const response = await fetch(`http://localhost:3000/$getLabel$`).then(
+    (response) => response.json() as unknown as [number, number, number][]
+  );
+  console.log("Loaded labels from server:");
+  console.log(response);
+  foci = response.map(([x, y, r]) => ({
+    x: (x * canvas.height) / 292,
+    y: (y * canvas.height) / 292,
     r: r * canvas.height,
   }));
+  console.log(`Upadated foci: ${JSON.stringify(foci)}`);
   const test = await imageData.blob().then((blob) => URL.createObjectURL(blob));
   image.src = test;
 };
 const main = async () => {
   console.log("main");
-  const response  = await fetch(`http://127.0.0.1:3000/images/$init$`).then((response) =>
-    response.json()
+  const response = await fetch(`http://127.0.0.1:3000/images/$init$`).then(
+    (response) => response.json()
   );
-	images = response["fileNames"]
-	imageIndex = images.indexOf(response["lastEdited"])
-	lastImageIndex = lastImageIndex === 0 ? -1 : imageIndex
-	drawFoci()
+  images = response["fileNames"];
+  imageIndex = images.indexOf(response["lastEdited"]);
+  lastImageIndex = lastImageIndex === 0 ? -1 : imageIndex;
+  drawFoci();
 };
 canvas.addEventListener("click", (e) => {
   foci.push({
@@ -75,47 +77,51 @@ canvas.addEventListener("click", (e) => {
   drawFoci();
 });
 const save = async () => {
-  const encoded = foci.map((focus) => [
-    Math.round((image.width * focus.x) / canvas.width),
-    Math.round((image.width * focus.y) / canvas.width),
-    focus.r / canvas.width,
-  ]).filter(data => !(data[0] === 0 && data[1] === 0));
 
-  const confirmation = await fetch(
-    `http://127.0.0.1:3000/$save$${JSON.stringify(encoded)}`
-  );
-  if (confirmation.statusText !== "OK") {
-    swal.fire("Error saving", "", "error");
-  }
-  console.log(confirmation);
+  const encoded = JSON.stringify(foci
+    .map((focus) => [
+      Math.round((image.width * focus.x) / canvas.width),
+      Math.round((image.width * focus.y) / canvas.width),
+      focus.r / canvas.width,
+    ])
+    .filter((data) => !(data[0] === 0 && data[1] === 0)))
+   if (encoded !== lastFociString) {
+		console.log("Saving new foci.")
+	  const confirmation = await fetch(
+		`http://127.0.0.1:3000/$save$${encoded}`
+	  );
+	  if (confirmation.statusText !== "OK") {
+		swal.fire("Error saving", "", "error");
+	  }
+	}
+	lastFociString = encoded;
 };
 document.onkeydown = async (e) => {
   e.preventDefault();
-	if (!loading) {
-	  if (e.code == "KeyS" && e.ctrlKey) {
-		await save();
-	  } else if (e.keyCode == 90 && e.ctrlKey) {
-		foci.pop();
-	  }
-	  if (e.keyCode === 38) {
-		console.log("up arrow pressed");
-	  } else if (e.keyCode === 40) {
-		console.log("down arrow pressed");
-	  } else if (e.keyCode === 37) {
-		console.log("left arrow pressed");
-		imageIndex = imageIndex - 1 < 0 ? images.length - 1 : imageIndex - 1;
-		await save();
-	  } else if (e.keyCode === 39) {
-		console.log("right arrow pressed");
-		imageIndex = (imageIndex + 1) % images.length;
-		await save();
-	  }
-	  else if (e.code === "KeyI") {
-			swal.fire(`Image: ${images[imageIndex]}`, "", "info");
-		}
-	  console.log({ imageIndex });
-	  drawFoci();
-	}
+  if (!loading) {
+    if (e.code == "KeyS" && e.ctrlKey) {
+      await save();
+    } else if (e.keyCode == 90 && e.ctrlKey) {
+      foci.pop();
+    }
+    if (e.keyCode === 38) {
+      console.log("up arrow pressed");
+    } else if (e.keyCode === 40) {
+      console.log("down arrow pressed");
+    } else if (e.keyCode === 37) {
+      console.log("left arrow pressed");
+      imageIndex = imageIndex - 1 < 0 ? images.length - 1 : imageIndex - 1;
+      await save();
+    } else if (e.keyCode === 39) {
+      console.log("right arrow pressed");
+      imageIndex = (imageIndex + 1) % images.length;
+      await save();
+    } else if (e.code === "KeyI") {
+      swal.fire(`Image: ${images[imageIndex]}`, "", "info");
+    }
+    console.log({ imageIndex });
+    drawFoci();
+  }
 };
 document.addEventListener("wheel", (e) => {
   if (foci.length > 0) {

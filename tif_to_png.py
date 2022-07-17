@@ -12,6 +12,7 @@ def main(src: str, dist: str):
         if file_name.endswith('.TIF'):
             print(file_name)
             img = imread(os.path.join(src, file_name))
+            ipdb.set_trace()
             dest_file_name = os.path.join(dist, file_name[:-3] + "png")
             print(f"{dest_file_name=}")
             cv.imwrite(dest_file_name, img)

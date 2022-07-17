@@ -18,13 +18,16 @@ const fileNames = fs.readdirSync(inPath);
 if (config.lastEdited === "" || config.lastEdited === undefined) {
   config.lastEdited = fileNames[0];
 }
+if (!fs.existsSync(path.join(outPath, config.lastEdited))) {
+  fs.writeFileSync(path.join(outPath, config.lastEdited), "[]");
+}
 console.log(`Found ${fileNames.length} in input directory.`);
 if (!fs.existsSync(outPath)) {
   fs.mkdirSync(outPath);
   console.log(`Created output directory ${outPath}`);
 }
 const server = https.createServer((req, res) => {
-  console.log(`URL: ${req.url}`);
+  console.log(`\n\nURL: ${req.url}`);
   if (req.url.includes("$init$")) {
     const headers = {
       "Access-Control-Allow-Origin": "*",
@@ -57,13 +60,19 @@ const server = https.createServer((req, res) => {
   } else if (req.url.includes("$getLabel$")) {
     const headers = {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Max-Age": 2592000, // 30 days
       "Content-Type": "text/json",
     };
     res.writeHead(200, headers);
-    const content = fs.existsSync(outLabelPath)
-      ? fs.readFileSync(outLabelPath, "utf8")
-      : "[]";
+    let content = [];
+    if (fs.existsSync(outLabelPath)) {
+      console.log(`Found label file: ${outLabelPath}`);
+      content = fs.readFileSync(outLabelPath, "utf8").toString();
+      const parsed = JSON.parse(content);
+      console.log(`Content: ${content}`);
+    } else {
+      console.log(`Label file not found: ${outLabelPath}`);
+      content = "[]";
+    }
     res.end(content);
   } else if (req.url.includes("$save$")) {
     const toSave = req.url.split("$save$")[1];
@@ -72,10 +81,24 @@ const server = https.createServer((req, res) => {
     });
     if (toSave !== "" && outLabelPath !== "") {
       const labels = JSON.parse(toSave);
-
-      console.log(`Saving labels to ${outLabelPath}`);
-      if (labels.length > 0) {
-        fs.writeFileSync(outLabelPath, JSON.stringify(labels));
+      console.log("Received labels:");
+      console.log(labels);
+      const invalidLabels =
+        labels.filter(
+          (el) =>{
+					  const uba = el.filter((subel) => {
+						return subel === null || subel === undefined 
+						})
+					  return uba.length > 0
+				})
+      if (invalidLabels.length === 0) {
+        console.log(`Saving labels to ${outLabelPath}`);
+        if (labels.length > 0) {
+          fs.writeFileSync(outLabelPath, JSON.stringify(labels));
+        }
+      } else {
+        console.log(`Found some invalid labels.`);
+				console.log(invalidLabels);
       }
     }
     res.end("saved successfully");
