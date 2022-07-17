@@ -79,7 +79,7 @@ const save = async () => {
     Math.round((image.width * focus.x) / canvas.width),
     Math.round((image.width * focus.y) / canvas.width),
     focus.r / canvas.width,
-  ]);
+  ]).filter(data => !(data[0] === 0 && data[1] === 0));
 
   const confirmation = await fetch(
     `http://127.0.0.1:3000/$save$${JSON.stringify(encoded)}`
