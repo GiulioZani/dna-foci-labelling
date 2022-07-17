@@ -2,7 +2,6 @@ from tifffile import imread
 import cv2 as cv
 import os
 import ipdb
-from argparse import ArgumentParser 
 
 def main(src: str, dist: str):
     if not os.path.exists(dist):
@@ -19,8 +18,11 @@ def main(src: str, dist: str):
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser()
-    parser.add_argument("src", help="source directory")
-    parser.add_argument("dist", help="destination directory")
-    args = parser.parse_args()
-    main(args.src, args.dist)
+    #parser = ArgumentParser()
+    #parser.add_argument("src", help="source directory")
+    #parser.add_argument("dist", help="destination directory")
+    #args = parser.parse_args()
+    #main(args.src, args.dist)
+    source = ""
+    destination = ""
+    main(source, destination)
