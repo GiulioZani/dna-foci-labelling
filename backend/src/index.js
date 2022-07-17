@@ -67,15 +67,15 @@ const server = https.createServer((req, res) => {
     res.end(content);
   } else if (req.url.includes("$save$")) {
     const toSave = req.url.split("$save$")[1];
+    res.writeHead(200, {
+      "Access-Control-Allow-Origin": "*",
+    });
     if (toSave !== "" && outLabelPath !== "") {
       const labels = JSON.parse(toSave);
 
       console.log(`Saving labels to ${outLabelPath}`);
       if (labels.length > 0) {
         fs.writeFileSync(outLabelPath, JSON.stringify(labels));
-        res.writeHead(200, {
-          "Access-Control-Allow-Origin": "*",
-        });
       }
     }
     res.end("saved successfully");
