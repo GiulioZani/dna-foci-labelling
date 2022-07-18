@@ -83,26 +83,26 @@ const server = https.createServer((req, res) => {
       const labels = JSON.parse(toSave);
       console.log(`Received labels (count = ${labels.length}):`);
       console.log(labels);
-      const invalidLabels =
-        labels.filter(
-          (el) =>{
-					  const uba = el.filter((subel) => {
-						return subel === null || subel === undefined
-						})
-					  return uba.length > 0
-				})
+      const invalidLabels = labels.filter((el) => {
+        const uba = el.filter((subel) => {
+          return subel === null || subel === undefined;
+        });
+        return uba.length > 0;
+      });
       if (invalidLabels.length === 0) {
-				const reallyValidLabels = labels.filter((el) => el[0] >=0 && el[1] >=0 && el[0] <= 292 && el[1] <= 292)
-				if (reallyValidLabels.length !== labels.length) {
-					console.log("Too large or too small labels found. Ignoring them.")
-				}
+        const reallyValidLabels = labels.filter(
+          (el) => el[0] >= 0 && el[1] >= 0 && el[0] <= 292 && el[1] <= 292
+        );
+        if (reallyValidLabels.length !== labels.length) {
+          console.log("Too large or too small labels found. Ignoring them.");
+        }
         console.log(`Saving labels to ${outLabelPath}`);
         if (reallyValidLabels.length > 0) {
           fs.writeFileSync(outLabelPath, JSON.stringify(reallyValidLabels));
         }
       } else {
         console.log(`Found some invalid labels.`);
-				console.log(invalidLabels);
+        console.log(invalidLabels);
       }
     }
     res.end("saved successfully");

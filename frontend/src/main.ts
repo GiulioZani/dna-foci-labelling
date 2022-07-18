@@ -5,6 +5,7 @@ type Focus = {
   r: number;
 };
 let loading = false;
+let saving = false;
 let foci: Focus[] = [];
 let lastFociString = "";
 const canvas = document.getElementById("canvas")! as HTMLCanvasElement;
@@ -52,7 +53,7 @@ const setImage = async () => {
   foci = response.map(([x, y, r]) => ({
     x: (x * canvas.height) / 292,
     y: (y * canvas.height) / 292,
-    r: r * canvas.height,
+    r: (r * canvas.height) / 292,
   }));
   console.log(`Upadated foci: ${JSON.stringify(foci)}`);
   const test = await imageData.blob().then((blob) => URL.createObjectURL(blob));
@@ -69,36 +70,55 @@ const main = async () => {
   drawFoci();
 };
 canvas.addEventListener("click", (e) => {
-  foci.push({
+  const newFocus = {
     x: e.offsetX,
     y: e.offsetY,
     r: 10,
-  });
-  drawFoci();
+  };
+  console.log("Adding new focus: " + JSON.stringify(newFocus));
+  const epsilon = 5;
+  if (
+    foci.filter(
+      (f) =>
+        Math.abs(f.x - newFocus.x) < epsilon &&
+        Math.abs(f.y - newFocus.y) < epsilon
+    ).length === 0
+  ) {
+    foci.push(newFocus);
+    drawFoci();
+  } else {
+    console.log("Focus already exists");
+  }
 });
 const save = async () => {
-
-  const encoded = JSON.stringify(Array.from(new Set(foci
-    .map((focus) => [
-      Math.round((image.width * focus.x) / canvas.width),
-      Math.round((image.width * focus.y) / canvas.width),
-      image.width*(focus.r / canvas.width),
-    ])
-    .filter((data) => !(data[0] === 0 && data[1] === 0)).map(d=>JSON.stringify(d)))).map(d=>JSON.parse(d)));
-   if (encoded !== lastFociString) {
-		console.log("Saving new foci.")
-	  const confirmation = await fetch(
-		`http://127.0.0.1:3000/$save$${encoded}`
-	  );
-	  if (confirmation.statusText !== "OK") {
-		swal.fire("Error saving", "", "error");
-	  }
-	}
-	lastFociString = encoded;
+  saving = true;
+  const encoded = JSON.stringify(
+    Array.from(
+      new Set(
+        foci
+          .map((focus) => [
+            Math.round((image.width * focus.x) / canvas.width),
+            Math.round((image.width * focus.y) / canvas.width),
+            image.width * (focus.r / canvas.width),
+          ])
+          .filter((data) => !(data[0] === 0 && data[1] === 0))
+          .map((d) => JSON.stringify(d))
+      )
+    ).map((d) => JSON.parse(d))
+  );
+  if (encoded !== lastFociString) {
+    console.log("Saving new foci.");
+    const confirmation = await fetch(`http://127.0.0.1:3000/$save$${encoded}`);
+    if (confirmation.statusText !== "OK") {
+      swal.fire("Error saving", "", "error");
+    }
+  }
+  lastFociString = encoded;
+  saving = false;
 };
 document.onkeydown = async (e) => {
   e.preventDefault();
-  if (!loading) {
+  if (!loading && !saving) {
     if (e.code == "KeyS" && e.ctrlKey) {
       await save();
     } else if (e.keyCode == 90 && e.ctrlKey) {
@@ -134,6 +154,6 @@ document.addEventListener("wheel", (e) => {
     drawFoci();
   }
 });
-setInterval(save, 500)
+setInterval(save, 500);
 await main();
 export {};
