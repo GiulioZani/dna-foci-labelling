@@ -27,7 +27,7 @@ if (!fs.existsSync(outPath)) {
   console.log(`Created output directory ${outPath}`);
 }
 const server = https.createServer((req, res) => {
-  console.log(`\n\nURL: ${req.url}`);
+  console.log(`\n\nTIME:${new Date().getTime()} URL: ${req.url}`);
   if (req.url.includes("$init$")) {
     const headers = {
       "Access-Control-Allow-Origin": "*",
@@ -81,20 +81,24 @@ const server = https.createServer((req, res) => {
     });
     if (toSave !== "" && outLabelPath !== "") {
       const labels = JSON.parse(toSave);
-      console.log("Received labels:");
+      console.log(`Received labels (count = ${labels.length}):`);
       console.log(labels);
       const invalidLabels =
         labels.filter(
           (el) =>{
 					  const uba = el.filter((subel) => {
-						return subel === null || subel === undefined 
+						return subel === null || subel === undefined
 						})
 					  return uba.length > 0
 				})
       if (invalidLabels.length === 0) {
+				const reallyValidLabels = labels.filter((el) => el[0] >=0 && el[1] >=0 && el[0] <= 292 && el[1] <= 292)
+				if (reallyValidLabels.length !== labels.length) {
+					console.log("Too large or too small labels found. Ignoring them.")
+				}
         console.log(`Saving labels to ${outLabelPath}`);
-        if (labels.length > 0) {
-          fs.writeFileSync(outLabelPath, JSON.stringify(labels));
+        if (reallyValidLabels.length > 0) {
+          fs.writeFileSync(outLabelPath, JSON.stringify(reallyValidLabels));
         }
       } else {
         console.log(`Found some invalid labels.`);

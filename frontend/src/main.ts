@@ -27,7 +27,7 @@ const drawFoci = () => {
     }
   }
 };
-image.onload = async () => {
+image.onload = () => {
   drawFoci();
   loading = false;
 };
@@ -78,13 +78,13 @@ canvas.addEventListener("click", (e) => {
 });
 const save = async () => {
 
-  const encoded = JSON.stringify(foci
+  const encoded = JSON.stringify(Array.from(new Set(foci
     .map((focus) => [
       Math.round((image.width * focus.x) / canvas.width),
       Math.round((image.width * focus.y) / canvas.width),
       focus.r / canvas.width,
     ])
-    .filter((data) => !(data[0] === 0 && data[1] === 0)))
+    .filter((data) => !(data[0] === 0 && data[1] === 0)).map(d=>JSON.stringify(d)))).map(d=>JSON.parse(d)));
    if (encoded !== lastFociString) {
 		console.log("Saving new foci.")
 	  const confirmation = await fetch(
