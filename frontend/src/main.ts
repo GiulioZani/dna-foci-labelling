@@ -82,7 +82,7 @@ const save = async () => {
     .map((focus) => [
       Math.round((image.width * focus.x) / canvas.width),
       Math.round((image.width * focus.y) / canvas.width),
-      focus.r / canvas.width,
+      image.width*(focus.r / canvas.width),
     ])
     .filter((data) => !(data[0] === 0 && data[1] === 0)).map(d=>JSON.stringify(d)))).map(d=>JSON.parse(d)));
    if (encoded !== lastFociString) {
