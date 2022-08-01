@@ -1,6 +1,7 @@
 # DNA Foci Labeling
 
-![foci labelling](sample_image.png)
+<img src="sample_image.png" width="50%">
+<!-- ![foci labelling](sample_image.png) -->
 
 This is simple tool to label DNA foci.
 
@@ -8,5 +9,5 @@ First edit the `config.json` file to select the location of the images and the o
 
 Start the app by:
 ```
-python 
+python start.py
 ```
