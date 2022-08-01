@@ -1,15 +1,12 @@
 # DNA Foci Labeling
 
+![foci labelling](sample_image.png)
+
 This is simple tool to label DNA foci.
+
 First edit the `config.json` file to select the location of the images and the output directory.
 
-Start the server by doing:
+Start the app by:
 ```
-cd backend
-npm start
-```
-And then the client by:
-```
-cd frontend
-npm run dev
+python 
 ```
