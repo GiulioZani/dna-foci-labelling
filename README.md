@@ -1,8 +1,8 @@
 # DNA Foci Labeling
 
-<div style="width:100%; text-align:center">
+<center>
 	<img src="sample_image.png" width="50%">
-</div>
+</center>
 
 <!-- ![foci labelling](sample_image.png) -->
 
