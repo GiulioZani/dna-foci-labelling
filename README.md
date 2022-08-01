@@ -1,6 +1,9 @@
 # DNA Foci Labeling
 
-<img src="sample_image.png" width="50%">
+<div style="width:100%; text-align:center">
+	<img src="sample_image.png" width="50%">
+</div>
+
 <!-- ![foci labelling](sample_image.png) -->
 
 This is simple tool to label DNA foci.
